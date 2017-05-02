@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -o errexit
+
+SORTKEYS="${1:-2}"
+FORMAT="%10s %10s %10s %10s %10s %40s\n"
+
+git status -s > /dev/null
+tput bold
+printf "${FORMAT}" "Commits" "Changes" "(+)" "(-)" "Delta" "Author"
+tput sgr0
+git shortlog -sn | while read -r commit author; do
+ADD=0
+DEL=0
+while read add del file; do
+	ADD=$((${ADD}+${add/-/0}))
+	DEL=$((${DEL}+${del/-/0}))
+done < <(git log -F --author="${author}" --pretty=tformat: --numstat)
+printf "${FORMAT}" ${commit} $((${ADD}+${DEL})) ${ADD} ${DEL} $((${ADD}-${DEL})) "$(iconv -c -f utf-8 -t ascii//translit <<< "${author}")"
+done | sort -r -n -k "${SORTKEYS}"
