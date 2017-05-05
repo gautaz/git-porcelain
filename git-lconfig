@@ -6,6 +6,10 @@ FORCE=no
 PRETEND=no
 VERBOSE=no
 
+if [ $# -eq 0 ]; then
+	source "${BASH_SOURCE[0]}" -l
+fi
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -l|--list)
