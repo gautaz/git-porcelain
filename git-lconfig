@@ -11,98 +11,98 @@ if [ $# -eq 0 ]; then
 fi
 
 while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -l|--list)
-      if [[ -e ~/.gitlconfig ]]; then
-        sed -nE 's/^[[:blank:]]*\[([^]]*)\][[:blank:]]*$/\1/p' < ~/.gitlconfig
-      fi
-      exit 0
-      ;;
-    -c|--config) # rarely used but for the case one wants a configuration named as an existing option
-      shift
-      CONFIG_NAME="$1"
-      ;;
-    -f|--force)
-      FORCE=yes
-      ;;
-    -p|--pretend)
-      PRETEND=yes
-      ;;
-    -v|--verbose)
-      VERBOSE=yes
-      ;;
-    *)
-      if [[ -z "${CONFIG_NAME+x}" ]]; then
-        CONFIG_NAME="$1"
-        shift
-      fi
-      break
-      ;;
-  esac
-  shift
+	case "$1" in
+		-l|--list)
+			if [[ -e ~/.gitlconfig ]]; then
+				sed -nE 's/^[[:blank:]]*\[([^]]*)\][[:blank:]]*$/\1/p' < ~/.gitlconfig
+			fi
+			exit 0
+			;;
+		-c|--config) # rarely used but for the case one wants a configuration named as an existing option
+			shift
+			CONFIG_NAME="$1"
+			;;
+		-f|--force)
+			FORCE=yes
+			;;
+		-p|--pretend)
+			PRETEND=yes
+			;;
+		-v|--verbose)
+			VERBOSE=yes
+			;;
+		*)
+			if [[ -z "${CONFIG_NAME+x}" ]]; then
+				CONFIG_NAME="$1"
+				shift
+			fi
+			break
+			;;
+	esac
+	shift
 done
 
 declare -A CONFIG
 eval "$(gawk -v config="${CONFIG_NAME}" -f - ~/.gitlconfig <<-'EOP'
 BEGIN {
-  keep = 0
+keep = 0
 }
 
 $0 ~ "^[[:blank:]]*\\[" config "\\][[:blank:]]*$" {
-  keep = 1
-  next
+keep = 1
+next
 }
 
 /^[[:blank:]]*\[[^]]*\][[:blank:]]*$/ {
-  keep = 0
-  next
+keep = 0
+next
 }
 
 match($0, /^[[:blank:]]*([^[:blank:]]*)[[:blank:]]*=[[:blank:]]*(.*)$/, group) {
-  if ( keep ) {
-    printf "CONFIG[\"%s\"]=\"%s\"; ", group[1], group[2]
-  }
+if ( keep ) {
+	printf "CONFIG[\"%s\"]=\"%s\"; ", group[1], group[2]
+}
 }
 EOP
 )"
 
 if [[ "${VERBOSE}" = "yes" ]]; then
-  echo "Configuration used:"
-  for name in "${!CONFIG[@]}"; do
-    echo " - ${name} = ${CONFIG[${name}]}"
-  done
+	echo "Configuration used:"
+	for name in "${!CONFIG[@]}"; do
+		echo " - ${name} = ${CONFIG[${name}]}"
+	done
 fi
 
 function lconfig_set() {
-  local name="$1"
-  local value="$2"
-  local current
-  if [[ ( "${FORCE}" = "yes"  ) ]] || ! current="$(git config --local --get "${name}" 2>/dev/null)"; then
-    if [[ "${PRETEND}" != "yes" ]]; then
-      git config "${name}" "${value}"
-    fi
-    echo -n " ${name}[${value}]"
-  else
-    echo -n " !${name}[${current}]"
-  fi
+	local name="$1"
+	local value="$2"
+	local current
+	if [[ ( "${FORCE}" = "yes"  ) ]] || ! current="$(git config --local --get "${name}" 2>/dev/null)"; then
+		if [[ "${PRETEND}" != "yes" ]]; then
+			git config "${name}" "${value}"
+		fi
+		echo -n " ${name}[${value}]"
+	else
+		echo -n " !${name}[${current}]"
+	fi
 }
 
 function lconfig() {
-  local git_path="$1"
-  if pushd "${git_path}" >& /dev/null; then
-    if git status "${git_path}" >& /dev/null; then
-      echo -n "${git_path}:"
-      for name in "${!CONFIG[@]}"; do
-        lconfig_set "${name}" "${CONFIG[${name}]}"
-      done
-      echo
-    else
-      echo "${git_path} ignored: not a git repository"
-    fi
-    popd >& /dev/null
-  else
-    echo "${git_path} ignored: cannot change directory"
-  fi
+	local git_path="$1"
+	if pushd "${git_path}" >& /dev/null; then
+		if git status "${git_path}" >& /dev/null; then
+			echo -n "${git_path}:"
+			for name in "${!CONFIG[@]}"; do
+				lconfig_set "${name}" "${CONFIG[${name}]}"
+			done
+			echo
+		else
+			echo "${git_path} ignored: not a git repository"
+		fi
+		popd >& /dev/null
+	else
+		echo "${git_path} ignored: cannot change directory"
+	fi
 }
 
 if [ $# -eq 0 ]; then
