@@ -7,11 +7,49 @@ PRETEND=no
 VERBOSE=no
 
 if [ $# -eq 0 ]; then
+	echo "Use -h option to display help. Available configurations are:"
 	source "${BASH_SOURCE[0]}" -l
 fi
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
+		-h) # --help is captured by git
+			cat <<-EOH
+			Usage: git lconfig [options...] [configuration name] [git repository paths...]
+
+			The command apply a configuration defined in ~/.gitlconfig to a list of git repositories.
+			. will be used if no repository path is given.
+			The first argument is considered as a configuration name only without the -c|--config option.
+
+			Available options are:
+			 -h                  display this help and exit
+			 --help-ini          display help about the ~/.gitlconfig file syntax and exit
+			 -l|--list           display the list of available configuration name and exit
+			 -c|--config <name>  apply the configuration name provided in argument
+			 -f|--force          replace existing configuration variables
+			 -p|--pretend        only show what would be done on each repository path
+			 -v|--verbose        display the configuration that will be applied
+
+			EOH
+			exit 0
+			;;
+		--help-ini)
+			cat <<-EOH
+			The file ~/.gitlconfig is an INI file with each section describing a custom git configuration.
+			Each configuration item is of the form "git_var = value".
+
+			Example:
+			[config_name_1]
+			user.name = user1
+			user.email = mail1@mail.mail
+
+			[config_name_2]
+			user.name = user2
+			user.email = mail2@mail.mail
+
+			EOH
+			exit 0
+			;;
 		-l|--list)
 			if [[ -e ~/.gitlconfig ]]; then
 				sed -nE 's/^[[:blank:]]*\[([^]]*)\][[:blank:]]*$/\1/p' < ~/.gitlconfig
