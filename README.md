@@ -11,7 +11,16 @@ The main idea behind this tool is to apply as easily as possible custom configur
 
 `lconfig` takes predefined configuration sets from the file `~/.gitlconfig` and apply them to [git] repositories.
 
-Type `git lconfig -h` in order to get help about the tool's usage and `git lconfig --help-ini` to get help about the `~/.gitlconfig` file format.
+Type `git lconfig -h` in order to get help about the tool's usage and `git lconfig --help-ini` to get help about the `~/.gitlconfig` file format which basically comes down to:
+
+```ini
+[profile name 1]
+git_var1 = value1
+git_var2 = value2
+
+[profile name 2]
+git_var3 = value3
+```
 
 This tool depends on:
 
