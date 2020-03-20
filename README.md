@@ -3,6 +3,7 @@
 Additional porcelain for [git]:
 
 - git-lconfig
+- git-rename-branch
 - git-scores
 
 ## git-lconfig
@@ -29,6 +30,12 @@ This tool depends on:
 - [git]
 - [GNU awk]
 - [sed]
+
+## git-rename-branch
+
+Simple porcelain to quickly rename a branch locally **and** remotely.
+
+The syntax is quite simple (see `git rename-branch -h`).
 
 ## git-scores
 
