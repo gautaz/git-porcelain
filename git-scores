@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -o errexit
+set -o pipefail
 
 SORTKEYS="${1:-2,2}"
 FORMAT="%10s %10s %10s %10s %10s %40s\n"
