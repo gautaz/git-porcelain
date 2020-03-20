@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o pipefail
+
+if [ $# -eq 0 ]; then
+	echo "Use -h option to display help."
+	exit 0
+fi
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		-h) # --help is captured by git
+			cat <<-EOH
+			Usage: git rename-branch <new branch name>
+
+			The command will rename the current branch locally AND remotely (origin).
+			EOH
+			exit 0
+			;;
+		*)
+			CURRENT_BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
+			git branch -m "$1"
+			git push origin -u "$1"
+			git push origin --delete "${CURRENT_BRANCH_NAME}"
+			exit 0
+			;;
+	esac
+done
