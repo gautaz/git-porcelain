@@ -120,18 +120,21 @@ function lconfig_set() {
 			git config "${name}" "${value}"
 		fi
 		echo -n " ${name}[${value}]"
+		return 0
 	else
 		echo -n " !${name}[${current}]"
+		return 1
 	fi
 }
 
 function lconfig() {
 	local git_path="$1"
+	local exitcode=0
 	if pushd "${git_path}" >& /dev/null; then
 		if git status "${git_path}" >& /dev/null; then
 			echo -n "${git_path}:"
 			for name in "${!CONFIG[@]}"; do
-				lconfig_set "${name}" "${CONFIG[${name}]}"
+				lconfig_set "${name}" "${CONFIG[${name}]}" || exitcode=1
 			done
 			echo
 		else
@@ -141,13 +144,16 @@ function lconfig() {
 	else
 		echo "${git_path} ignored: cannot change directory"
 	fi
+	return ${exitcode}
 }
 
 if [ $# -eq 0 ]; then
 	lconfig .
 else
+	EXITCODE=0
 	while [ $# -gt 0 ]; do
-		lconfig $1
+		lconfig $1 || EXITCODE=1
 		shift
 	done
+	exit ${EXITCODE}
 fi
