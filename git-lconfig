@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -o errexit
 set -o pipefail
+shopt -s extglob
 
 FORCE=no
 PRETEND=no
@@ -128,7 +129,7 @@ function lconfig_set() {
 }
 
 function lconfig() {
-	local git_path="$1"
+	local git_path="${1%/.git?(/)}"
 	local exitcode=0
 	if pushd "${git_path}" >& /dev/null; then
 		if git status "${git_path}" >& /dev/null; then
