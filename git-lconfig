@@ -7,6 +7,11 @@ FORCE=no
 PRETEND=no
 VERBOSE=no
 
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+NOCOLOR='\e[39m'
+
 if [ $# -eq 0 ]; then
 	echo "Use -h option to display help. Available configurations are:"
 	source "${BASH_SOURCE[0]}" -l
@@ -28,6 +33,7 @@ while [[ $# -gt 0 ]]; do
 			 -l|--list           display the list of available configuration name and exit
 			 -c|--config <name>  apply the configuration name provided in argument
 			 -f|--force          replace existing configuration variables
+			 --no-color          turn off colored output
 			 -p|--pretend        only show what would be done on each repository path
 			 -v|--verbose        display the configuration that will be applied
 
@@ -63,6 +69,12 @@ while [[ $# -gt 0 ]]; do
 			;;
 		-f|--force)
 			FORCE=yes
+			;;
+		--no-color)
+			RED=''
+			GREEN=''
+			YELLOW=''
+			NOCOLOR=''
 			;;
 		-p|--pretend)
 			PRETEND=yes
@@ -120,10 +132,10 @@ function lconfig_set() {
 		if [[ "${PRETEND}" != "yes" ]]; then
 			git config "${name}" "${value}"
 		fi
-		echo -n " ${name}[${value}]"
+		echo -ne " ${GREEN}${name}[${value}]${NOCOLOR}"
 		return 0
 	else
-		echo -n " !${name}[${current}]"
+		echo -ne " ${RED}!${name}[${current}]${NOCOLOR}"
 		return 1
 	fi
 }
@@ -139,11 +151,11 @@ function lconfig() {
 			done
 			echo
 		else
-			echo "${git_path} ignored: not a git repository"
+			echo -e "${YELLOW}${git_path} ignored: not a git repository${NOCOLOR}" >&2
 		fi
 		popd >& /dev/null
 	else
-		echo "${git_path} ignored: cannot change directory"
+		echo -e "${YELLOW}${git_path} ignored: cannot change directory${NOCOLOR}" >&2
 	fi
 	return ${exitcode}
 }
