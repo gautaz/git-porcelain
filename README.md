@@ -10,7 +10,17 @@ Additional porcelain for [git]:
 
 The main idea behind this tool is to apply as easily as possible custom configurations to [git] repositories and in particular [multiple user configurations](https://orrsella.com/2013/08/10/git-using-different-user-emails-for-different-repositories/).
 
-`lconfig` takes predefined configuration sets from the file `~/.gitlconfig` and apply them to [git] repositories.
+:warning: In order to avoid committing with the wrong user (TL;DR of the previous link):
+
+```sh
+# Require setting user.name and email per-repo:
+$ git config --global user.useConfigOnly true
+
+# Remove email address from global config:
+$ git config --global --unset-all user.email
+```
+
+That said, `lconfig` takes predefined configuration sets from the file `~/.gitlconfig` and apply them to [git] repositories.
 
 Type `git lconfig -h` in order to get help about the tool's usage and `git lconfig --help-ini` to get help about the `~/.gitlconfig` file format which basically comes down to:
 
